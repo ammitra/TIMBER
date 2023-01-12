@@ -101,6 +101,7 @@ def CompareShapes(outfilename,year,prettyvarname,bkgs={},signals={},names={},col
     procs.update(signals)
     icolor = 2
     for pname in procs.keys():
+        #print(pname)
         h = procs[pname]
         # Colors
         if pname not in colors.keys():
@@ -113,7 +114,8 @@ def CompareShapes(outfilename,year,prettyvarname,bkgs={},signals={},names={},col
         if pname in bkgs.keys():
             h.SetFillColorAlpha(colors[pname],0.2 if not stackBkg else 1)
 	    h.SetLineWidth(0) 
-            if stackBkg: bkgStack.Add(h)
+            print(pname)
+            if stackBkg : bkgStack.Add(h)
             if colors[pname] not in colors_in_legend:
                 legend.AddEntry(h,leg_name,'f')
                 colors_in_legend.append(colors[pname])
@@ -127,8 +129,17 @@ def CompareShapes(outfilename,year,prettyvarname,bkgs={},signals={},names={},col
                 colors_in_legend.append(colors[pname])
 
     if stackBkg:
-        maximum =  max(bkgStack.GetMaximum(),max([s.GetMaximum() for s in signals.values()]))*1.4
+        maximum =  max(bkgStack.GetMaximum(),max([s.GetMaximum() for s in signals.values()]))*1000
         bkgStack.SetMaximum(maximum)
+        mins = []
+        c = ROOT.TCanvas()
+        for s in procs.values():
+            s.Draw()
+            c.SetLogy()
+            c.Update()
+            min1 = 10**ROOT.gPad.GetUymin()
+            mins.append(min1)
+        bkgStack.SetMinimum(min(mins))
     else:
         if len(bkgs.values()) > 0:    bkgmax = list(bkgs.values())[0].GetMaximum()
         else:                         bkgmax = 0
